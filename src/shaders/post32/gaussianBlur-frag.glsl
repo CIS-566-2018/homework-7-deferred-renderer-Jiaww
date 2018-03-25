@@ -16,7 +16,7 @@ float normpdf(in float x, in float sigma)
 // Interpolation between color and greyscale over time on left half of screen
 void main() {
 	//declare stuff
-	const int mSize = 18;
+	const int mSize = 15;
 	const int kSize = (mSize-1)/2;
 	float kernel[mSize];
 	vec3 final_color = vec3(0.0);

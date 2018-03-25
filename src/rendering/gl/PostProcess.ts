@@ -9,6 +9,8 @@ class PostProcess extends ShaderProgram {
 	static screenQuad: Square = undefined; // Quadrangle onto which we draw the frame texture of the last render pass
 	unifFrame: WebGLUniformLocation; // The handle of a sampler2D in our shader which samples the texture drawn to the quad
 	unifFrame2: WebGLUniformLocation; // The handle of a sampler2D in our shader which samples the texture drawn to the quad
+	unifColorHatch: WebGLUniformLocation;
+	unifToneMapping: WebGLUniformLocation;
 	name: string;
 
 	constructor(fragProg: Shader, tag: string = "default") {
@@ -17,6 +19,9 @@ class PostProcess extends ShaderProgram {
 
 		this.unifFrame = gl.getUniformLocation(this.prog, "u_frame");
 		this.unifFrame2 = gl.getUniformLocation(this.prog, "u_frame2");
+		this.unifColorHatch = gl.getUniformLocation(this.prog, "u_ColorHatch");
+		this.unifToneMapping = gl.getUniformLocation(this.prog, "u_ToneMapping");
+
 		this.use();
 		this.name = tag;
 
@@ -31,6 +36,28 @@ class PostProcess extends ShaderProgram {
 
   	draw() {
   		super.draw(PostProcess.screenQuad);
+  	}
+
+  	setColorHatch(colorHatch: string){
+  		this.use();
+  		if (this.unifColorHatch !== -1) {
+  			if(colorHatch == 'GreyHatch')
+	      		gl.uniform1f(this.unifColorHatch, 0.0);
+	      	else
+	      		gl.uniform1f(this.unifColorHatch, 1.0);
+	    }
+  	}
+
+  	setToneMapping(toneMapping: string){
+  		this.use();
+  		if (this.unifToneMapping !== -1) {
+  			if(toneMapping == 'LinearToneMapping')
+	      		gl.uniform1f(this.unifToneMapping, 0.0);
+	      	else if(toneMapping == 'ReinhardToneMapping')
+	      		gl.uniform1f(this.unifToneMapping, 1.0);
+	      	else
+	      		gl.uniform1f(this.unifToneMapping, 2.0);
+	    }
   	}
 
   	getName() : string { return this.name; }

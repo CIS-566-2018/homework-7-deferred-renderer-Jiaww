@@ -11,9 +11,13 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 import Texture from './rendering/gl/Texture';
 
 // Define an object with application parameters and button callbacks
-// const controls = {
-//   // Extra credit: Add interactivity
-// };
+export const controls = {
+  Bloom: true,
+  DepthOfField: true,
+  Method: 'FilmicTonemap',
+  ArtEffect: false,
+  ArtMethod: 'GreyHatch',
+};
 
 let square: Square;
 
@@ -79,7 +83,16 @@ function main() {
   document.body.appendChild(stats.domElement);
 
   // Add controls to the gui
-  // const gui = new DAT.GUI();
+  const gui = new DAT.GUI();
+  gui.add(controls, 'Bloom');
+  gui.add(controls, 'DepthOfField');
+  let ToneMapping = gui.addFolder('Tone Mapping');
+  ToneMapping.add(controls, 'Method', ['LinearToneMapping', 'ReinhardToneMapping', 'FilmicTonemap']);
+  ToneMapping.open();
+  let AE = gui.addFolder('Artistic Effect');
+  AE.open();
+  AE.add(controls, 'ArtEffect');
+  AE.add(controls, 'ArtMethod', ['GreyHatch', 'ColorHatch', 'Pointilism', 'DistortedTV']);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -130,8 +143,9 @@ function main() {
     renderer.renderFromGBuffer(camera);
     // apply 32-bit post and tonemap from 32-bit color to 8-bit color
     renderer.renderPostProcessHDR(camera);
-    // apply 8-bit post and draw
-    //renderer.renderPostProcessLDR();
+    if (controls.ArtEffect)
+      // apply 8-bit post and draw
+      renderer.renderPostProcessLDR();
 
     stats.end();
     requestAnimationFrame(tick);
