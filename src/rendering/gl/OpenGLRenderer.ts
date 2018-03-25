@@ -43,7 +43,7 @@ class OpenGLRenderer {
 
   // shader that maps 32-bit color to 8-bit color
   tonemapPass : PostProcess = new PostProcess(
-    new Shader(gl.FRAGMENT_SHADER, require('../../shaders/tonemap-frag.glsl'))
+    new Shader(gl.FRAGMENT_SHADER, require('../../shaders/post32/tonemap-frag.glsl'))
     );
 
 
