@@ -21,8 +21,12 @@ let square: Square;
 
 let obj0: string;
 let mesh0: Mesh;
+let mesh1: Mesh;
+let mesh2: Mesh;
 
 let tex0: Texture;
+let tex1: Texture;
+let tex2: Texture;
 
 
 var timer = {
@@ -53,7 +57,15 @@ function loadScene() {
   mesh0 = new Mesh(obj0, vec3.fromValues(0, 0, 0));
   mesh0.create();
 
+  mesh1 = new Mesh(obj0, vec3.fromValues(0, 0, -10));
+  mesh1.create();
+
+  mesh2 = new Mesh(obj0, vec3.fromValues(0, 0, -20));
+  mesh2.create();
+
   tex0 = new Texture('../resources/textures/wahoo.bmp')
+  tex1 = new Texture('../resources/textures/wahoo_Nor.bmp')
+  tex2 = new Texture('../resources/textures/wahoo_Spec.bmp')
 }
 
 
@@ -94,6 +106,8 @@ function main() {
     ]);
 
   standardDeferred.setupTexUnits(["tex_Color"]);
+  standardDeferred.setupTexUnits(["tex_Normal"]);
+  standardDeferred.setupTexUnits(["tex_Specular"]);
 
   function tick() {
     camera.update();
@@ -103,19 +117,21 @@ function main() {
     renderer.updateTime(timer.deltaTime, timer.currentTime);
 
     standardDeferred.bindTexToUnit("tex_Color", tex0, 0);
+    standardDeferred.bindTexToUnit("tex_Normal", tex1, 1);
+    standardDeferred.bindTexToUnit("tex_Specular", tex2, 2);
 
     renderer.clear();
     renderer.clearGB();
 
     // TODO: pass any arguments you may need for shader passes
     // forward render mesh info into gbuffers
-    renderer.renderToGBuffer(camera, standardDeferred, [mesh0]);
+    renderer.renderToGBuffer(camera, standardDeferred, [mesh0, mesh1, mesh2]);
     // render from gbuffers into 32-bit color buffer
     renderer.renderFromGBuffer(camera);
     // apply 32-bit post and tonemap from 32-bit color to 8-bit color
-    renderer.renderPostProcessHDR();
+    renderer.renderPostProcessHDR(camera);
     // apply 8-bit post and draw
-    renderer.renderPostProcessLDR();
+    //renderer.renderPostProcessLDR();
 
     stats.end();
     requestAnimationFrame(tick);
