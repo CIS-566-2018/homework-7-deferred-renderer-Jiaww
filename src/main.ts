@@ -11,9 +11,13 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 import Texture from './rendering/gl/Texture';
 
 // Define an object with application parameters and button callbacks
-// const controls = {
-//   // Extra credit: Add interactivity
-// };
+export const controls = {
+  Bloom: true,
+  DepthOfField: true,
+  Method: 'FilmicTonemap',
+  ArtEffect: false,
+  ArtMethod: 'GreyHatch',
+};
 
 let square: Square;
 
@@ -21,8 +25,12 @@ let square: Square;
 
 let obj0: string;
 let mesh0: Mesh;
+let mesh1: Mesh;
+let mesh2: Mesh;
 
 let tex0: Texture;
+let tex1: Texture;
+let tex2: Texture;
 
 
 var timer = {
@@ -39,7 +47,7 @@ var timer = {
 
 
 function loadOBJText() {
-  obj0 = readTextFile('../resources/obj/wahoo.obj')
+  obj0 = readTextFile('./src/resources/obj/wahoo.obj')
 }
 
 
@@ -53,7 +61,15 @@ function loadScene() {
   mesh0 = new Mesh(obj0, vec3.fromValues(0, 0, 0));
   mesh0.create();
 
-  tex0 = new Texture('../resources/textures/wahoo.bmp')
+  mesh1 = new Mesh(obj0, vec3.fromValues(0, 0, -10));
+  mesh1.create();
+
+  mesh2 = new Mesh(obj0, vec3.fromValues(0, 0, -20));
+  mesh2.create();
+
+  tex0 = new Texture('./src/resources/textures/wahoo.bmp')
+  tex1 = new Texture('./src/resources/textures/wahoo_Nor.bmp')
+  tex2 = new Texture('./src/resources/textures/wahoo_Spec.bmp')
 }
 
 
@@ -67,7 +83,16 @@ function main() {
   document.body.appendChild(stats.domElement);
 
   // Add controls to the gui
-  // const gui = new DAT.GUI();
+  const gui = new DAT.GUI();
+  gui.add(controls, 'Bloom');
+  gui.add(controls, 'DepthOfField');
+  let ToneMapping = gui.addFolder('Tone Mapping');
+  ToneMapping.add(controls, 'Method', ['LinearToneMapping', 'ReinhardToneMapping', 'FilmicTonemap']);
+  ToneMapping.open();
+  let AE = gui.addFolder('Artistic Effect');
+  AE.open();
+  AE.add(controls, 'ArtEffect');
+  AE.add(controls, 'ArtMethod', ['GreyHatch', 'ColorHatch', 'Pointilism', 'DistortedTV']);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -94,6 +119,8 @@ function main() {
     ]);
 
   standardDeferred.setupTexUnits(["tex_Color"]);
+  standardDeferred.setupTexUnits(["tex_Normal"]);
+  standardDeferred.setupTexUnits(["tex_Specular"]);
 
   function tick() {
     camera.update();
@@ -103,19 +130,22 @@ function main() {
     renderer.updateTime(timer.deltaTime, timer.currentTime);
 
     standardDeferred.bindTexToUnit("tex_Color", tex0, 0);
+    standardDeferred.bindTexToUnit("tex_Normal", tex1, 1);
+    standardDeferred.bindTexToUnit("tex_Specular", tex2, 2);
 
     renderer.clear();
     renderer.clearGB();
 
     // TODO: pass any arguments you may need for shader passes
     // forward render mesh info into gbuffers
-    renderer.renderToGBuffer(camera, standardDeferred, [mesh0]);
+    renderer.renderToGBuffer(camera, standardDeferred, [mesh0, mesh1, mesh2]);
     // render from gbuffers into 32-bit color buffer
     renderer.renderFromGBuffer(camera);
     // apply 32-bit post and tonemap from 32-bit color to 8-bit color
-    renderer.renderPostProcessHDR();
-    // apply 8-bit post and draw
-    renderer.renderPostProcessLDR();
+    renderer.renderPostProcessHDR(camera);
+    if (controls.ArtEffect)
+      // apply 8-bit post and draw
+      renderer.renderPostProcessLDR();
 
     stats.end();
     requestAnimationFrame(tick);
