@@ -56,9 +56,9 @@ Each `tick()`, the provided `OpenGLRenderer` will perform the following operatio
 
 ### GUI
 
-|**Grey Hatch**|
+|**GUI**|
 |---|
-|<img src="./results/GUI.JPG" width="450" height="370">|
+|<img src="./results/GUI.JPG" width="280" height="300">|
 
 ## Credits:
 * [***CIS 700 Procedural Graphics: Color and Shading***](https://cis700-procedural-graphics.github.io/files/color_2_14_17.pdf)
