@@ -1,7 +1,7 @@
-#version 300 es
++#version 300 es
 precision highp float;
 
-// Reference: https://www.shadertoy.com/view/MdX3Dr
+// Reference: https://www.shadertoy.com/view/ldXGW4
 
 
 in vec2 fs_UV;
